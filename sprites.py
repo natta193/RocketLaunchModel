@@ -26,7 +26,6 @@ class Rocket(pg.sprite.Sprite):
         self.rocket_angle = 0 # angle of rocket 0 is up
         self.boosting = 0
         self.gravity = 9.81
-        self.air_resistance = 0.99
     
     def update(self):
         self.ax, self.ay = 0, 0
@@ -40,11 +39,7 @@ class Rocket(pg.sprite.Sprite):
             
         # gravity
         self.ay -= self.gravity
-                
-        # air resistance
-        self.vx *= self.air_resistance
-        self.vy *= self.air_resistance
-                
+                                
         # update velocity
         self.vx += self.ax
         self.vy += self.ay
@@ -59,7 +54,7 @@ class Rocket(pg.sprite.Sprite):
             self.y = 0
             self.vy = 0
         # ensure rocket doesn't go too high
-        top_boundary = self.window_height - self.rect.height
+        top_boundary = (self.window_height * 0.9) - self.rect.height
         if self.y > top_boundary:
             self.y = top_boundary
             self.vy = 0
@@ -86,4 +81,4 @@ class Rocket(pg.sprite.Sprite):
         
         # update rect
         self.rect.centerx = int(self.x)
-        self.rect.bottom = self.floor -int(self.y)
+        self.rect.bottom = self.floor - int(self.y)
