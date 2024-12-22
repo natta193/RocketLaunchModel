@@ -13,63 +13,77 @@ class Rocket(pg.sprite.Sprite):
         self.img.append(self.image_flame)
         self.window_height = height
         self.window_width = width
-        self.floor = self.window_height * 9
+        self.floor = self.window_height * 0.9
         self.rect = self.image.get_rect()
         self.rect.bottom = self.floor
         self.rect.centerx = self.window_width / 2
         self.x = float(self.rect.x)
         self.y = 0
-        self.v = [0, 0]
-        self.a = [0, 0]
+        self.vx = 0
+        self.vy = 0
+        self.ax = 0
+        self.ay = 0
         self.rocket_angle = 0 # angle of rocket 0 is up
         self.boosting = 0
-        self.gravity = 1
+        self.gravity = 9.81
+        self.air_resistance = 0.99
     
     def update(self):
-        self.a = [0, 0]
+        self.ax, self.ay = 0, 0
         
-        # accelerate
+        # thrust
         if self.boosting > 0:
-            self.a[1] += (math.cos(math.radians(abs(self.rocket_angle))) * self.boosting)
-            if self.rocket_angle > 0:
-                self.a[0] += (math.sin(math.radians(abs(self.rocket_angle))) * self.boosting)
-            elif self.rocket_angle < 0:
-                self.a[0] -= (math.sin(math.radians(abs(self.rocket_angle))) * self.boosting)
+            thrust = self.boosting
+            angle_rad = math.radians(self.rocket_angle)
+            self.ay += math.cos(angle_rad) * thrust
+            self.ax += math.sin(angle_rad) * thrust * 0.1
             
         # gravity
-        if self.y > 0: 
-            self.gravity = 10 * (1 - ((2*self.y) / self.window_height*100))
-            if self.gravity < 0.1:
-                self.gravity = 0.1
-            self.a[1] -= self.gravity * 0.1
+        self.ay -= self.gravity
+                
+        # air resistance
+        self.vx *= self.air_resistance
+        self.vy *= self.air_resistance
                 
         # update velocity
-        self.v[0] += self.a[0]
-        self.v[1] += self.a[1]
+        self.vx += self.ax
+        self.vy += self.ay
                 
-        # update position
-        self.x += self.v[0]
-        self.y += self.v[1]
+        # update displacement
+        self.x += self.vx
+        self.y += self.vy
 
-        ## BOUNDS ##
+        ## BOUNDARIES ##
+        # ensure rocket stays above ground
         if self.y < 0:
             self.y = 0
-            if self.v[1] < 0:
-                self.v[1] *= -0.1
-                if 0 < self.v[1] < 0.01:
-                    self.v[0], self.v[1] = 0, 0 # vel
-                    self.a[0], self.a[1] = 0, 0 # accel
+            self.vy = 0
+        # ensure rocket doesn't go too high
+        top_boundary = self.window_height - self.rect.height
+        if self.y > top_boundary:
+            self.y = top_boundary
+            self.vy = 0
+        # ensure the rocket does not go within the last 1/10 of either side of the screen
+        left_boundary = (self.rect.width/2)
+        right_boundary = self.window_width - (self.rect.width/2)
+        if self.x < left_boundary:
+            self.x = left_boundary
+            self.vx = 0
+        elif self.x > right_boundary:
+            self.x = right_boundary
+            self.vx = 0
         
         # image
         if self.boosting > 0:
-            self.image = self.img[1]
+            self.image = pg.transform.rotate(self.img[1], -self.rocket_angle)
+            self.rect = self.image.get_rect(center=self.rect.center)
         else:
             self.image = self.img[0]
             
         # track stats
-        s.stdout.write(f"{self.a[0]=:.2f}, {self.a[1]=:.2f}, {self.v[0]=:.2f}, {self.v[1]=:.2f}, {self.x=:.2f}, {self.y=:.2f} {self.rocket_angle=:.2f} {self.boosting=:.2f} {self.gravity=:.2f}     \r")
+        s.stdout.write(f"{self.ax=:.2f}, {self.ay=:.2f}, {self.vx=:.2f}, {self.vy=:.2f}, {self.x=:.2f}, {self.y=:.2f} {self.rocket_angle=:.2f} {self.boosting=:.2f}     \r")
         s.stdout.flush()
         
         # update rect
-        self.rect.x = int(self.x)
-        self.rect.bottom = -int(self.y) + self.floor
+        self.rect.centerx = int(self.x)
+        self.rect.bottom = self.floor -int(self.y)
