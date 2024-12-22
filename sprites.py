@@ -77,8 +77,8 @@ class Rocket(pg.sprite.Sprite):
             self.image = self.img[0]
             
         # track stats
-        s.stdout.write(f"{self.ax=:.2f}, {self.ay=:.2f}, {self.vx=:.2f}, {self.vy=:.2f}, {self.x=:.2f}, {self.y=:.2f} {self.rocket_angle=:.2f} {self.boosting=:.2f}     \r")
-        s.stdout.flush()
+        # s.stdout.write(f"{self.ax=:.2f}, {self.ay=:.2f}, {self.vx=:.2f}, {self.vy=:.2f}, {self.x=:.2f}, {self.y=:.2f} {self.rocket_angle=:.2f} {self.boosting=:.2f}     \r")
+        # s.stdout.flush()
         
         # update rect
         self.rect.centerx = int(self.x)
