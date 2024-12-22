@@ -1,5 +1,4 @@
-import rocketlaunch
-
+from rocketlaunch import main
 
 if __name__ == "__main__":
-    rocketlaunch.main()
+    main()
