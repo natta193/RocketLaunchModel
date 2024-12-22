@@ -7,10 +7,13 @@ def main():
 
     fps = 40
     clock = pg.time.Clock()
-    window_height = 600
+    window_height = 800
     window_width = 800
     sky_blue = (135, 206, 235)
-    ground_color = (124, 252, 0)
+    black = (0, 0, 0)
+    
+    increase_boost = False
+    decrease_boost = False
 
     ## SETUP ##
     print("initializing")
@@ -20,14 +23,16 @@ def main():
     print("window")
     pg.display.set_caption('Rocket Launch')
     window = pg.display.set_mode((window_width, window_height))
+    print(f"{window_width=}, {window_height=}")
     # background
     print("creating background")
     background = pg.surface.Surface((window_width*10, window_height*10))
     background_rect = background.get_rect()
+    # space = pg.transform.scale(pg.image.load('assets/space.jpg'), (window_width*10, window_height*10))
     ground = pg.transform.scale(pg.image.load('assets/ground.png'), (window_width*10, window_height))
     # rocket
     print("creating rocket")
-    rocket = Rocket(window_height, window_width)
+    rocket = Rocket(window_height*10, window_width*10)
 
     ## MAIN LOOP ##
     while running:
@@ -44,14 +49,30 @@ def main():
                     finally:    
                         running = False
                 if event.key == pg.K_UP:
-                    rocket.boosting += 0.03
-                if event.key == pg.K_DOWN and rocket.boosting > 0:
-                    rocket.boosting -= 0.03
+                    increase_boost = True
+                    decrease_boost = False
+                if event.key == pg.K_DOWN:
+                    decrease_boost = True
+                    increase_boost = False
                 if event.key == pg.K_LEFT and rocket.y > 0:
                     rocket.rocket_angle -= 1
                 if event.key == pg.K_RIGHT and rocket.y > 0:
                     rocket.rocket_angle += 1
+            elif event.type == pg.KEYUP:
+                if event.key == pg.K_UP:
+                    increase_boost = False
+                if event.key == pg.K_DOWN:
+                    decrease_boost = False
+                    
+        # boost
+        if increase_boost and rocket.boosting < 15:
+            rocket.boosting += 0.1
+        if decrease_boost and rocket.boosting > 0:
+            rocket.boosting -= 0.1
+        
         # reset background
+        window.fill(black)
+        # background.blit(space, (0, 0))
         background.fill(sky_blue)
         background.blit(ground, (0, window_height*9))
         background_rect.x = (window_width / 2) - rocket.rect.centerx
