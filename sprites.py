@@ -36,6 +36,7 @@ class Rocket(pg.sprite.Sprite):
             angle_rad = math.radians(self.rocket_angle)
             self.ay += math.cos(angle_rad) * thrust
             self.ax += math.sin(angle_rad) * thrust * 0.1
+            thrust = self.boosting
             
         # gravity
         self.ay -= self.gravity

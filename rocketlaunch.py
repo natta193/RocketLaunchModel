@@ -26,6 +26,7 @@ def main():
     print("creating window")
     pg.display.set_caption('Rocket Launch')
     window = pg.display.set_mode((window_width, window_height))
+    print(f"{window_width=}, {window_height=}")
     # background
     print("creating background")
     background = pg.surface.Surface((window_width*10, window_height*10))
